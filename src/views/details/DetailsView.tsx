@@ -74,11 +74,15 @@ function DetailsView(props: IProps) {
       </Text>
       <Text>
         {'grnd_level: ' +
-          (currentCity.main ? currentCity.main.grnd_level.toString() : '')}
+          (currentCity.main && currentCity.main.grnd_level
+            ? currentCity.main.grnd_level.toString()
+            : '')}
       </Text>
       <Text>
         {'sea_level: ' +
-          (currentCity.main ? currentCity.main.sea_level.toString() : '')}
+          (currentCity.main && currentCity.main.sea_level
+            ? currentCity.main.sea_level.toString()
+            : '')}
       </Text>
       <Text>
         {'pressure: ' +

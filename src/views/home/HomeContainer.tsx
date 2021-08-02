@@ -1,14 +1,14 @@
 import React from 'react';
 import {MainContainer} from '../../components/';
-import {ScrollView} from 'react-native';
+import {View} from 'react-native';
 import HomeView from './HomeView';
 
 function HomeContainer() {
   return (
     <MainContainer>
-      <ScrollView keyboardShouldPersistTaps="handled">
+      <View>
         <HomeView />
-      </ScrollView>
+      </View>
     </MainContainer>
   );
 }

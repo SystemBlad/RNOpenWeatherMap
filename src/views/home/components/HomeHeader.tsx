@@ -10,6 +10,7 @@ import {convertTemperature} from '../../../utils/helpers';
 
 export type Props = {
   currentLocation: any;
+  setCurrentCity: Function;
 };
 
 function HomeHeader(props: Props) {
@@ -30,6 +31,7 @@ function HomeHeader(props: Props) {
       ).then(result => {
         console.log(result);
         setCurrentCity(result);
+        props.setCurrentCity(result);
       });
     }
   }, [props.currentLocation]);

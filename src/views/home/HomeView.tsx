@@ -16,6 +16,7 @@ import HomeHeader from './components/HomeHeader';
 import {navigateToDetails} from '../../navigation/actions';
 import APPStyles from '../../theme/styles';
 import {TEMPERATURE_UNITS} from '../../utils/enums';
+import {updateTemperatureUnit} from '../../redux/root/actions';
 
 function HomeView() {
   const [mapIsReady, setMapIsReady] = useState(false);
@@ -28,6 +29,7 @@ function HomeView() {
   });
   const mapViewRef = useRef(null);
   const textInputRef = useRef(null);
+  const [currentCity, setCurrentCity] = useState<Icity>({} as Icity);
 
   const temperatureUnit = useSelector(
     (state: any) => state.rootReducer.temperatureUnit,
@@ -83,7 +85,6 @@ function HomeView() {
   );
 
   const cityPressed = useCallback(event => {
-    console.log('markerClick', {cityId: event.nativeEvent.id});
     navigateToDetails({cityId: event.nativeEvent.id});
   }, []);
 
@@ -107,14 +108,38 @@ function HomeView() {
   };
 
   const renderItem = (event: any) => (
-    <TouchableOpacity style={styles.item}>
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() => {
+        onPressItem(event.item);
+      }}>
       <Text style={styles.title}>{event.item.name}</Text>
     </TouchableOpacity>
   );
 
+  const onPressItem = (city: Icity) => {
+    clearSearch();
+    navigateToDetails({cityId: city.id});
+  };
+
+  const clearSearch = () => {
+    setIsSearchMode(false);
+    // @ts-ignore
+    textInputRef.current.blur();
+    setSearchText('');
+  };
+
   return (
     <View>
-      {!isSearchMode ? <HomeHeader currentLocation={myPosition} /> : null}
+      {!isSearchMode ? (
+        <HomeHeader
+          currentLocation={myPosition}
+          setCurrentCity={(city: Icity) => {
+            console.log('setCurrentCity', city);
+            setCurrentCity(city);
+          }}
+        />
+      ) : null}
       <View style={isSearchMode ? styles.containerFull : styles.container}>
         <TextInput
           onFocus={() => setIsSearchMode(true)}
@@ -131,41 +156,41 @@ function HomeView() {
               {position: 'absolute', top: 5, right: 10},
             ]}
             onPress={() => {
-              setIsSearchMode(false);
-              // @ts-ignore
-              textInputRef.current.blur();
-              setSearchText('');
+              clearSearch();
             }}>
             <Text>{'X'}</Text>
           </TouchableOpacity>
         ) : null}
-        <FlatList
-          data={
-            searchText
-              ? citiesIncircle.filter(listItem =>
-                  listItem.name
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase()),
-                )
-              : null
-          }
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
+        {isSearchMode ? (
+          <FlatList
+            data={
+              searchText || currentCity.name
+                ? citiesIncircle.filter(
+                    listItem =>
+                      (listItem.name
+                        .toLowerCase()
+                        .includes(searchText.toLowerCase()) &&
+                        searchText !== '') ||
+                      listItem.name === currentCity.name,
+                  )
+                : null
+            }
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+          />
+        ) : null}
       </View>
-      {!isSearchMode ? (
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          ref={mapViewRef}
-          showsUserLocation={true}
-          style={mapIsReady ? styles.mapReady : styles.mapLoading}
-          onMapReady={_onMapReady}
-          onUserLocationChange={onUserLocationChange}>
-          {mapIsReady && citiesIncircle && citiesIncircle.length > 0
-            ? citiesIncircle.map((city: Icity) => _renderCityMarker(city))
-            : null}
-        </MapView>
-      ) : null}
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        ref={mapViewRef}
+        showsUserLocation={true}
+        style={mapIsReady ? styles.mapReady : styles.mapLoading}
+        onMapReady={_onMapReady}
+        onUserLocationChange={onUserLocationChange}>
+        {mapIsReady && citiesIncircle && citiesIncircle.length > 0
+          ? citiesIncircle.map((city: Icity) => _renderCityMarker(city))
+          : null}
+      </MapView>
     </View>
   );
 }
