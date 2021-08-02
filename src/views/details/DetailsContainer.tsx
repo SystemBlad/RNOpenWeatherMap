@@ -1,16 +1,18 @@
 import React from 'react';
 import {MainContainer} from '../../components/';
 import {ScrollView} from 'react-native';
-import HomeView from './HomeView';
-
-function HomeContainer() {
+import DetailsView from './DetailsView';
+export interface IProps {
+  route: any;
+}
+function DetailsContainer(props: IProps) {
   return (
     <MainContainer>
       <ScrollView keyboardShouldPersistTaps="handled">
-        <HomeView />
+        <DetailsView route={props.route} />
       </ScrollView>
     </MainContainer>
   );
 }
 
-export default HomeContainer;
+export default DetailsContainer;

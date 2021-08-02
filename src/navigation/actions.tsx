@@ -5,5 +5,5 @@ export function goBack() {
 }
 
 export function navigateToDetails(params?: object) {
-  NavigationService.replace('DetailsScreen', params);
+  NavigationService.navigate('DetailsScreen', params);
 }

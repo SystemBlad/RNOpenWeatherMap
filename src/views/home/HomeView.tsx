@@ -1,10 +1,12 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import APPStyles from '../../theme/styles';
 import {getCitiesInCircle} from '../../api/weather';
 import {Icity} from '../../models/data';
 import {convertTemperature} from '../../utils/helpers';
+import {useSelector} from 'react-redux';
+import HomeHeader from './components/HomeHeader';
+import {navigateToDetails} from '../../navigation/actions';
 
 function HomeView() {
   const [mapIsReady, setMapIsReady] = useState(false);
@@ -14,6 +16,10 @@ function HomeView() {
     longitude: 0,
   });
   let mapViewRef = useRef(null);
+
+  const temperatureUnit = useSelector(
+    (state: any) => state.rootReducer.temperatureUnit,
+  );
 
   useEffect(() => {
     if (myPosition.latitude !== 0 && myPosition.longitude !== 0) {
@@ -29,8 +35,6 @@ function HomeView() {
   const _onMapReady = useCallback(() => {
     setMapIsReady(true);
   }, []);
-
-  const onPress = () => console.log('pressed');
 
   const onUserLocationChange = useCallback(
     event => {
@@ -66,25 +70,33 @@ function HomeView() {
     [mapViewRef, myPosition],
   );
 
+  const cityPressed = useCallback(event => {
+    console.log('markerClick', {cityId: event.nativeEvent.id});
+    navigateToDetails({cityId: event.nativeEvent.id});
+  }, []);
+
   const _renderCityMarker = (city: Icity) => {
     let marker: LatLng = {latitude: city.coord.lat, longitude: city.coord.lon};
 
     return (
       <Marker
-        key={city.id}
+        key={city.id.toString()}
+        identifier={city.id.toString()}
         tracksViewChanges={false}
         coordinate={marker}
         title={city.name}
-        description={convertTemperature(city.main.temp, 0).toString()}
+        onPress={cityPressed}
+        description={convertTemperature(
+          city.main.temp,
+          temperatureUnit,
+        ).toString()}
       />
     );
   };
 
   return (
     <View>
-      <TouchableOpacity style={APPStyles.button} onPress={onPress}>
-        <Text>Temperature Unit °F: °C</Text>
-      </TouchableOpacity>
+      <HomeHeader currentLocation={myPosition} />
       <MapView
         provider={PROVIDER_GOOGLE}
         ref={mapViewRef}

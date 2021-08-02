@@ -4,19 +4,12 @@ import {NavigationContainer} from '@react-navigation/native';
 import {navigationRef} from './Root';
 // @ts-ignore
 import {createStackNavigator} from '@react-navigation/stack';
-import {StatusBar, Text, View} from 'react-native';
+import {StatusBar} from 'react-native';
 import HomeView from '../views/home';
+import DetailsView from '../views/details';
 
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
-
-function DemoScreen() {
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>{'Under Construction'}</Text>
-    </View>
-  );
-}
 
 function MainStackScreen() {
   return (
@@ -25,7 +18,7 @@ function MainStackScreen() {
         headerShown: false,
       })}>
       <MainStack.Screen name="HomeScreen" component={HomeView} />
-      <MainStack.Screen name="DetailsScreen" component={DemoScreen} />
+      <MainStack.Screen name="DetailsScreen" component={DetailsView} />
     </MainStack.Navigator>
   );
 }
