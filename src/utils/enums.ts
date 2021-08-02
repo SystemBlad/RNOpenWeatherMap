@@ -1,0 +1,4 @@
+export const TEMPERATURE_UNITS = {
+  CELSIUS: 0,
+  FAHRENHEIT: 1,
+};

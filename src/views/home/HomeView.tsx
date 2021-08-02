@@ -4,6 +4,7 @@ import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import APPStyles from '../../theme/styles';
 import {getCitiesInCircle} from '../../api/weather';
 import {Icity} from '../../models/data';
+import {convertTemperature} from '../../utils/helpers';
 
 function HomeView() {
   const [mapIsReady, setMapIsReady] = useState(false);
@@ -74,7 +75,7 @@ function HomeView() {
         tracksViewChanges={false}
         coordinate={marker}
         title={city.name}
-        description={city.name}
+        description={convertTemperature(city.main.temp, 0).toString()}
       />
     );
   };
