@@ -103,10 +103,6 @@ function HomeView() {
         coordinate={marker}
         title={city.name}
         onPress={cityPressed}
-        description={convertTemperature(
-          city.main.temp,
-          temperatureUnit,
-        ).toString()}
       />
     );
   };
@@ -118,7 +114,11 @@ function HomeView() {
         onPressItem(event.item);
       }}>
       <Text style={styles.title}>
-        {event.item.isSearched ? '*' + event.item.name : event.item.name}
+        {event.item.id === currentCity.id
+          ? event.item.name + ' (Your Location)'
+          : event.item.isSearched
+          ? event.item.name + ' (Searched)'
+          : event.item.name}
       </Text>
     </TouchableOpacity>
   );
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     width: 250,
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
   },
 });
 
