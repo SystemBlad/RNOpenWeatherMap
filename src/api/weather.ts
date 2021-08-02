@@ -41,3 +41,20 @@ export const getWeatherByCityId = (cityId: string) => {
       console.error(error);
     });
 };
+
+export const getDailyForecastByCoordinates = (
+  latitude: number,
+  longitude: number,
+) => {
+  let URL = `${baseUrl}/forecast/daily?lat=${latitude}&lon=${longitude}&appid=${openWeatherKey}`;
+  console.log(URL);
+  return fetch(URL)
+    .then(response => response.json())
+    .then(json => {
+      console.log('getDailyForecastByCoordinates', json);
+      return json;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+};

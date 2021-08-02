@@ -1,24 +1,25 @@
-import React, {useCallback, useRef, useState, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
   StyleSheet,
-  View,
+  Text,
   TextInput,
   TouchableOpacity,
-  Text,
-  FlatList,
+  View,
 } from 'react-native';
 import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {getCitiesInCircle} from '../../api/weather';
 import {Icity} from '../../models/data';
 import {convertTemperature} from '../../utils/helpers';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import HomeHeader from './components/HomeHeader';
 import {navigateToDetails} from '../../navigation/actions';
 import APPStyles from '../../theme/styles';
-import {TEMPERATURE_UNITS} from '../../utils/enums';
-import {updateTemperatureUnit} from '../../redux/root/actions';
+import {updateSearchedCities} from '../../redux/root/actions';
+import DailyForecast from './components/DailyForecast';
 
 function HomeView() {
+  const dispatch = useDispatch();
   const [mapIsReady, setMapIsReady] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
@@ -33,6 +34,9 @@ function HomeView() {
 
   const temperatureUnit = useSelector(
     (state: any) => state.rootReducer.temperatureUnit,
+  );
+  const searchedCities = useSelector(
+    (state: any) => state.rootReducer.SearchedCities,
   );
 
   useEffect(() => {
@@ -113,13 +117,16 @@ function HomeView() {
       onPress={() => {
         onPressItem(event.item);
       }}>
-      <Text style={styles.title}>{event.item.name}</Text>
+      <Text style={styles.title}>
+        {event.item.isSearched ? '*' + event.item.name : event.item.name}
+      </Text>
     </TouchableOpacity>
   );
 
   const onPressItem = (city: Icity) => {
     clearSearch();
     navigateToDetails({cityId: city.id});
+    dispatch(updateSearchedCities(city));
   };
 
   const clearSearch = () => {
@@ -165,13 +172,18 @@ function HomeView() {
           <FlatList
             data={
               searchText || currentCity.name
-                ? citiesIncircle.filter(
-                    listItem =>
-                      (listItem.name
-                        .toLowerCase()
-                        .includes(searchText.toLowerCase()) &&
-                        searchText !== '') ||
-                      listItem.name === currentCity.name,
+                ? searchedCities.concat(
+                    citiesIncircle.filter(
+                      listItem =>
+                        ((listItem.name
+                          .toLowerCase()
+                          .includes(searchText.toLowerCase()) &&
+                          searchText !== '') ||
+                          listItem.name === currentCity.name) &&
+                        !searchedCities.some(
+                          (city: any) => city.id === listItem.id,
+                        ),
+                    ),
                   )
                 : null
             }
@@ -191,6 +203,7 @@ function HomeView() {
           ? citiesIncircle.map((city: Icity) => _renderCityMarker(city))
           : null}
       </MapView>
+      <DailyForecast currentLocation={myPosition} />
     </View>
   );
 }
