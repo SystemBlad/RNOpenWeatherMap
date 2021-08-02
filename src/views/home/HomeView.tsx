@@ -1,10 +1,13 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import MapView, {LatLng, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {LatLng, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import APPStyles from '../../theme/styles';
+import {getCitiesInCircle} from '../../api/weather';
+import {Icity} from '../../models/data';
 
 function HomeView() {
   const [mapIsReady, setMapIsReady] = useState(false);
+  const [citiesIncircle, setCitiesIncircle] = useState<Array<Icity>>([]);
   const [myPosition, setMyPosition] = useState<LatLng>({
     latitude: 0,
     longitude: 0,
@@ -13,16 +16,12 @@ function HomeView() {
 
   useEffect(() => {
     if (myPosition.latitude !== 0 && myPosition.longitude !== 0) {
-      fetch(
-        'https://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=7883132d28ed57417ef54381006af2a2',
-      )
-        .then(response => response.json())
-        .then(json => {
-          console.log(json);
-        })
-        .catch(error => {
-          console.error(error);
-        });
+      getCitiesInCircle(myPosition.latitude, myPosition.longitude).then(
+        result => {
+          setCitiesIncircle(result);
+          console.log(result);
+        },
+      );
     }
   }, [myPosition]);
 
@@ -66,6 +65,20 @@ function HomeView() {
     [mapViewRef, myPosition],
   );
 
+  const _renderCityMarker = (city: Icity) => {
+    let marker: LatLng = {latitude: city.coord.lat, longitude: city.coord.lon};
+
+    return (
+      <Marker
+        key={city.id}
+        tracksViewChanges={false}
+        coordinate={marker}
+        title={city.name}
+        description={city.name}
+      />
+    );
+  };
+
   return (
     <View>
       <TouchableOpacity style={APPStyles.button} onPress={onPress}>
@@ -77,8 +90,11 @@ function HomeView() {
         showsUserLocation={true}
         style={mapIsReady ? styles.mapReady : styles.mapLoading}
         onMapReady={_onMapReady}
-        onUserLocationChange={onUserLocationChange}
-      />
+        onUserLocationChange={onUserLocationChange}>
+        {mapIsReady && citiesIncircle && citiesIncircle.length > 0
+          ? citiesIncircle.map((city: Icity) => _renderCityMarker(city))
+          : null}
+      </MapView>
     </View>
   );
 }
