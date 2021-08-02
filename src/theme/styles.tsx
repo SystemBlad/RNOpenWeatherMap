@@ -8,6 +8,14 @@ const APPStyles = StyleSheet.create({
     width: '100%',
     flex: 1,
   },
+  button: {
+    elevation: 8,
+    backgroundColor: '#009688',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    margin: 10,
+  },
 });
 
 export default APPStyles;
